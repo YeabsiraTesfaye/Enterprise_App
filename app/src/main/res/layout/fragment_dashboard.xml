@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".ui.dashboard.DashboardFragment">
+    <TextView
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#FED925"
+        android:text="Enterprises Expected to Pay"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <HorizontalScrollView
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_margin="10dp"
+            android:scrollbars="none"
+            android:id="@+id/horizontalScroll1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:visibility="gone"
+            android:id="@+id/toPayEnterprise"
+            android:layout_width="500dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:fontFamily="sans-serif-black"
+
+            android:text="Customers Registered Today"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="20dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FED925"
+                android:orientation="horizontal">
+
+                <TextView
+
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_column="1"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="Enterprise Name" />
+
+                <TextView
+
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_column="1"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="Reg Emps" />
+                <TextView
+
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_column="1"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="Expected Emps" />
+
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="Due Date" />
+
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_column="3"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="RM" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+
+
+        </ScrollView>
+    </HorizontalScrollView>
+</LinearLayout>

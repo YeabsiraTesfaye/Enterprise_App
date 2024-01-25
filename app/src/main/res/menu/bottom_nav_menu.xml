@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/pay"
+        android:title="Paid" />
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/to_pay"
+        android:title="Expected" />
+
+    <item
+        android:id="@+id/navigation_notifications"
+        android:icon="@drawable/under_communication"
+        android:title="In Process" />
+
+</menu>

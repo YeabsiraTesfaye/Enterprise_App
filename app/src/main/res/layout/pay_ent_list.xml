@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:background="#F8F8F8"
+        android:layout_marginBottom="1dp"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:layout_column="1"
+        android:layout_weight="1"
+        android:id="@+id/name"
+        android:padding="10dp"/>
+    <TextView
+        android:background="#F8F8F8"
+        android:layout_marginTop="1dp"
+        android:textStyle="bold"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_column="1"
+        android:padding="10dp"
+        android:id="@+id/total" />
+    <TextView
+        android:textStyle="bold"
+        android:background="#F8F8F8"
+        android:layout_marginTop="1dp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_column="1"
+        android:padding="10dp"
+        android:id="@+id/registered" />
+    <TextView
+        android:background="#F8F8F8"
+        android:layout_marginBottom="1dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_column="2"
+        android:id="@+id/pay_ent_status"
+        android:scrollbars = "horizontal"
+        android:layout_weight="1"
+        android:padding="10dp"/>
+    <TextView
+        android:background="#F8F8F8"
+        android:layout_marginBottom="1dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_column="2"
+        android:id="@+id/pay_ent_freq"
+        android:layout_weight="1"
+        android:padding="10dp"/>
+    <TextView
+        android:background="#F8F8F8"
+        android:layout_marginBottom="1dp"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:layout_column="2"
+        android:id="@+id/pay_ent_RM"
+        android:layout_weight="1"
+        android:padding="10dp"/>
+</TableRow>

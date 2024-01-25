@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".ui.notifications.NotificationsFragment">
+    <TextView
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#FED925"
+        android:text="Under Communication \nEnterprises"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <HorizontalScrollView
+        android:scrollbars="none"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/view">
+
+        <ScrollView
+            android:scrollbars="none"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TableLayout
+                android:visibility="gone"
+                android:id="@+id/underComm"
+                android:layout_width="550dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:fontFamily="sans-serif-black"
+
+                android:orientation="vertical"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="20dp">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FED925">
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="1"
+                        android:padding="10dp"
+                        android:layout_weight="1"
+                        android:text="Enterprise Name" />
+                    <TextView
+
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="1"
+                        android:layout_weight="1"
+                        android:padding="10dp"
+                        android:text="Expected Emps" />
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="2"
+                        android:padding="10dp"
+                        android:layout_weight="1"
+                        android:text="Last Interaction" />
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="2"
+                        android:padding="10dp"
+                        android:layout_weight="1"
+                        android:text="meet?" />
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="2"
+                        android:layout_weight="1"
+                        android:padding="10dp"
+                        android:text="Status" />
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_column="2"
+                        android:padding="10dp"
+                        android:layout_weight="1"
+                        android:text="Assigned Person" />
+                </TableRow>
+            </TableLayout>
+        </ScrollView>
+    </HorizontalScrollView>
+
+
+</LinearLayout>
