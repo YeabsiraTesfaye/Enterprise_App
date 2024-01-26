@@ -21,11 +21,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
+        android:padding="10dp"
         android:scrollbars="none"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ScrollView
-            android:layout_margin="10dp"
             android:scrollbars="none"
             android:id="@+id/horizontalScroll1"
             android:layout_width="match_parent"

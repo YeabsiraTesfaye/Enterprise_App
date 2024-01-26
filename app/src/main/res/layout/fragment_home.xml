@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 <HorizontalScrollView
+    android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
@@ -35,7 +36,6 @@
 
         <TableLayout
             android:visibility="gone"
-            android:layout_margin="10dp"
             android:id="@+id/payEnterprise"
             android:layout_width="600dp"
             android:layout_height="wrap_content"

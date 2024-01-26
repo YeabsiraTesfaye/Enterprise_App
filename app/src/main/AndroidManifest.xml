@@ -13,6 +13,9 @@
         android:theme="@style/Theme.EnterprisApp"
         tools:targetApi="31">
         <activity
+            android:name=".car.requestSender.StatusViewActivity"
+            android:exported="false" />
+        <activity
             android:name=".car.admin.AdminActivity"
             android:exported="false"
             android:label="@string/title_activity_admin"

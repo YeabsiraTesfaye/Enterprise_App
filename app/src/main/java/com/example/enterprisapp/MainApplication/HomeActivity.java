@@ -1,37 +1,34 @@
 package com.example.enterprisapp.MainApplication;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.ViewCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.Model.Enterprise;
 import com.example.enterprisapp.R;
-import com.example.enterprisapp.ui.addUnderCommunicationFragment;
+import com.example.enterprisapp.car.requestSender.RequestActivity;
 import com.example.enterprisapp.databinding.ActivityHome2Binding;
 import com.example.enterprisapp.ui.AddPayFragment;
 import com.example.enterprisapp.ui.AddToPayFragment;
+import com.example.enterprisapp.ui.addUnderCommunicationFragment;
 import com.example.enterprisapp.ui.dashboard.DashboardFragment;
 import com.example.enterprisapp.ui.home.HomeFragment;
 import com.example.enterprisapp.ui.notifications.NotificationsFragment;
@@ -77,7 +74,7 @@ FirebaseUser firebaseUser;
     private OnBackPressedCallback onBackPressedCallback;
     private SharedPreferences sharedPreferences;
     TextView total_emp_tv, reg_emp_tv, pay_ent_tv, to_pay_ent_tv,under_comm_tv;
-
+    ImageButton requestCar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +91,11 @@ FirebaseUser firebaseUser;
         pay_ent_tv= findViewById(R.id.totalPaid);
         to_pay_ent_tv = findViewById(R.id.totalExpected);
         under_comm_tv = findViewById(R.id.totalUnderComm);
+
+        requestCar = findViewById(R.id.request);
+        requestCar.setOnClickListener(click->{
+            startActivity(new Intent(HomeActivity.this, RequestActivity.class));
+        });
 
 
 
@@ -202,39 +204,47 @@ FirebaseUser firebaseUser;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                firestore.collection("enterprises").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for(QueryDocumentSnapshot q: queryDocumentSnapshots){
-                            Enterprise enterprise = q.toObject(Enterprise.class);
-                            if(enterprise.getStatus_type() == 1){
-                                pay_ent+=1;
-                            } else if (enterprise.getStatus_type() == 2) {
-                                to_pay_ent+=1;
-                            } else if (enterprise.getStatus_type() == 3) {
-                                und_comm_ent+=1;
-                            }
-                            try{
-                                exp_emp += enterprise.getNo_of_total_emp();
-                                reg_emp += enterprise.getNo_of_reg_emp();
-                            }catch (Exception e){
+                try{
+                    firestore.collection("enterprises").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            for(QueryDocumentSnapshot q: queryDocumentSnapshots){
+                                Enterprise enterprise = q.toObject(Enterprise.class);
+                                if(enterprise.getStatus_type() == 1){
+                                    pay_ent+=1;
+                                } else if (enterprise.getStatus_type() == 2) {
+                                    to_pay_ent+=1;
+                                }
+                                else if (enterprise.getStatus_type() == 3) {
+                                    und_comm_ent+=1;
+                                }
+                                try{
+                                    if(enterprise.getStatus_type() != 3){
+                                        exp_emp += enterprise.getNo_of_total_emp();
+                                        reg_emp += enterprise.getNo_of_reg_emp();
+                                    }
 
+                                }catch (Exception e){
+
+                                }
                             }
+                            total_emp_tv.setText(exp_emp+"");
+                            reg_emp_tv.setText(reg_emp+"");
+                            pay_ent_tv.setText(pay_ent+"");
+                            to_pay_ent_tv.setText(to_pay_ent+"");
+                            under_comm_tv.setText(und_comm_ent+"");
+                            exp_emp =0;
+                            reg_emp=0;
+                            pay_ent=0;
+                            to_pay_ent=0;
+                            und_comm_ent = 0;
                         }
-                        total_emp_tv.setText(exp_emp+"");
-                        reg_emp_tv.setText(reg_emp+"");
-                        pay_ent_tv.setText(pay_ent+"");
-                        to_pay_ent_tv.setText(to_pay_ent+"");
-                        under_comm_tv.setText(und_comm_ent+"");
-                        exp_emp =0;
-                        reg_emp=0;
-                        pay_ent=0;
-                        to_pay_ent=0;
-                        und_comm_ent = 0;
-                    }
 
-                });
-                //your code
+                    });
+                }catch (Exception e){
+
+                }
+
                 handler.postDelayed(this,1000);
             }
         },1000);

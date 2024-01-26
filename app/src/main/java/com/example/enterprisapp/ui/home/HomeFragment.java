@@ -4,11 +4,9 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.enterprisapp.Model.Enterprise;
 import com.example.enterprisapp.R;
@@ -61,232 +58,236 @@ public class HomeFragment extends Fragment {
     }
 
     private void refreshDataChange() {
+        try{
+            firestore.collection("enterprises").whereEqualTo("status_type",1).orderBy("name").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    if(queryDocumentSnapshots.size() != 0){
+                        payEntListLayout.setVisibility(View.VISIBLE);
+                        for(QueryDocumentSnapshot q: queryDocumentSnapshots){
+                            try{
+                                Enterprise enterprise = q.toObject(Enterprise.class);
+                                View payEntList = getLayoutInflater().inflate(R.layout.pay_ent_list,null,false);
+                                TextView name = payEntList.findViewById(R.id.name);
+                                TextView total = payEntList.findViewById(R.id.total);
+                                TextView registered = payEntList.findViewById(R.id.registered);
+                                TextView status = payEntList.findViewById(R.id.pay_ent_status);
+                                TextView freq = payEntList.findViewById(R.id.pay_ent_freq);
+                                TextView RM = payEntList.findViewById(R.id.pay_ent_RM);
+                                name.setText(enterprise.getName());
+                                total.setText(enterprise.getNo_of_total_emp()+"");
+                                registered.setText(enterprise.getNo_of_reg_emp()+"");
+                                status.setText(enterprise.getStatus());
+                                freq.setText(enterprise.getFrequency()+"");
+                                RM.setText(enterprise.getPM());
+                                if(sharedPreferences.getInt("role",0) == 1){
+                                    freq.setOnClickListener(click->{
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-        firestore.collection("enterprises").whereEqualTo("status_type",1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if(queryDocumentSnapshots.size() != 0){
-                    payEntListLayout.setVisibility(View.VISIBLE);
-                    for(QueryDocumentSnapshot q: queryDocumentSnapshots){
-                        try{
-                            Enterprise enterprise = q.toObject(Enterprise.class);
-                            View payEntList = getLayoutInflater().inflate(R.layout.pay_ent_list,null,false);
-                            TextView name = payEntList.findViewById(R.id.name);
-                            TextView total = payEntList.findViewById(R.id.total);
-                            TextView registered = payEntList.findViewById(R.id.registered);
-                            TextView status = payEntList.findViewById(R.id.pay_ent_status);
-                            TextView freq = payEntList.findViewById(R.id.pay_ent_freq);
-                            TextView RM = payEntList.findViewById(R.id.pay_ent_RM);
-                            name.setText(enterprise.getName());
-                            total.setText(enterprise.getNo_of_total_emp()+"");
-                            registered.setText(enterprise.getNo_of_reg_emp()+"");
-                            status.setText(enterprise.getStatus());
-                            freq.setText(enterprise.getFrequency()+"");
-                            RM.setText(enterprise.getPM());
-                            if(sharedPreferences.getInt("role",0) == 1){
-                                freq.setOnClickListener(click->{
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                        builder.setMessage("Increment Frequency?");
 
-                                    builder.setMessage("Increment Frequency?");
+                                        builder.setCancelable(true);
 
-                                    builder.setCancelable(true);
-
-                                    builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
-                                        enterprise.setFrequency(enterprise.getFrequency()+1);
-                                        firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Toast.makeText(getContext(), "Date Updated Successfully", Toast.LENGTH_SHORT).show();
-                                                freq.setText(enterprise.getFrequency()+"");
-                                            }
+                                        builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+                                            enterprise.setFrequency(enterprise.getFrequency()+1);
+                                            firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(getContext(), "Date Updated Successfully", Toast.LENGTH_SHORT).show();
+                                                    freq.setText(enterprise.getFrequency()+"");
+                                                }
+                                            });
                                         });
+
+                                        // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
+                                        builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+                                            // If user click no then dialog box is canceled.
+                                            dialog.cancel();
+                                        });
+
+                                        // Create the Alert dialog
+                                        AlertDialog alertDialog = builder.create();
+                                        // Show the Alert Dialog box
+                                        alertDialog.show();
                                     });
+                                    status.setOnClickListener(click->{
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                        builder.setTitle("Status");
 
-                                    // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
-                                    builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
-                                        // If user click no then dialog box is canceled.
-                                        dialog.cancel();
-                                    });
+                                        // set the custom layout
+                                        final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
+                                        builder.setView(customLayout);
+                                        EditText editText = customLayout.findViewById(R.id.editText);
+                                        editText.setText(enterprise.getStatus());
 
-                                    // Create the Alert dialog
-                                    AlertDialog alertDialog = builder.create();
-                                    // Show the Alert Dialog box
-                                    alertDialog.show();
-                                });
-                                status.setOnClickListener(click->{
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                    builder.setTitle("Status");
-
-                                    // set the custom layout
-                                    final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
-                                    builder.setView(customLayout);
-                                    EditText editText = customLayout.findViewById(R.id.editText);
-                                    editText.setText(enterprise.getStatus());
-
-                                    builder.setNegativeButton("Cancel", (dialog, which)->{
-                                        dialog.cancel();
-                                    });
+                                        builder.setNegativeButton("Cancel", (dialog, which)->{
+                                            dialog.cancel();
+                                        });
 
 
-                                    // add a button
-                                    builder.setPositiveButton("OK", (dialog, which) -> {
-                                        if(editText.getText().toString().trim().length() != 0){
-                                            enterprise.setStatus(editText.getText().toString());
-                                            firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Toast.makeText(getContext(), "Status Updated Successfully", Toast.LENGTH_SHORT).show();
-                                                    status.setText(editText.getText().toString());
-                                                }
-                                            });
-                                        }else{
-                                            Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
-
-                                        }
-                                        // send data from the AlertDialog to the Activity
-
-                                    });
-                                    // create and show the alert dialog
-                                    AlertDialog dialog = builder.create();
-                                    dialog.show();
-                                });
-
-                                total.setOnClickListener(click->{
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                    builder.setTitle("Total Employees");
-
-                                    // set the custom layout
-                                    final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
-                                    builder.setView(customLayout);
-                                    EditText editText = customLayout.findViewById(R.id.editText);
-                                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                                    editText.setText(enterprise.getNo_of_total_emp()+"");
-
-                                    builder.setNegativeButton("Cancel", (dialog, which)->{
-                                        dialog.cancel();
-                                    });
-
-
-                                    // add a button
-                                    builder.setPositiveButton("OK", (dialog, which) -> {
-                                        if(editText.getText().toString().trim().length() != 0){
-                                            enterprise.setNo_of_total_emp(Integer.parseInt(editText.getText().toString()));
-                                            firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Toast.makeText(getContext(), "Total Employees Updated Successfully", Toast.LENGTH_SHORT).show();
-                                                    total.setText(editText.getText().toString());
-                                                }
-                                            });
-                                        }else{
-                                            Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
-
-                                        }
-                                        // send data from the AlertDialog to the Activity
-
-                                    });
-                                    // create and show the alert dialog
-                                    AlertDialog dialog = builder.create();
-                                    dialog.show();
-                                });
-
-                                registered.setOnClickListener(click->{
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                    builder.setTitle("Registered Employees");
-
-                                    // set the custom layout
-                                    final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
-                                    builder.setView(customLayout);
-                                    EditText editText = customLayout.findViewById(R.id.editText);
-                                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                                    editText.setText(enterprise.getNo_of_reg_emp()+"");
-
-                                    builder.setNegativeButton("Cancel", (dialog, which)->{
-                                        dialog.cancel();
-                                    });
-
-
-                                    // add a button
-                                    builder.setPositiveButton("OK", (dialog, which) -> {
-                                        if(editText.getText().toString().trim().length() != 0){
-                                            enterprise.setNo_of_reg_emp(Integer.parseInt(editText.getText().toString()));
-                                            firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Toast.makeText(getContext(), "Registered Employees Updated Successfully", Toast.LENGTH_SHORT).show();
-                                                    registered.setText(editText.getText().toString());
-                                                }
-                                            });
-                                        }else{
-                                            Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
-
-                                        }
-                                        // send data from the AlertDialog to the Activity
-
-                                    });
-                                    // create and show the alert dialog
-                                    AlertDialog dialog = builder.create();
-                                    dialog.show();
-                                });
-                                if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
-                                    name.setOnLongClickListener(new View.OnLongClickListener() {
-                                        @Override
-                                        public boolean onLongClick(View v) {
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-                                            builder.setMessage("Delete?");
-
-                                            builder.setCancelable(true);
-
-                                            builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
-                                                enterprise.setFrequency(enterprise.getFrequency()+1);
-                                                firestore.collection("enterprises").document(q.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        // add a button
+                                        builder.setPositiveButton("OK", (dialog, which) -> {
+                                            if(editText.getText().toString().trim().length() != 0){
+                                                enterprise.setStatus(editText.getText().toString());
+                                                firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void unused) {
-                                                        Toast.makeText(getContext(), "Delete Successfully", Toast.LENGTH_SHORT).show();
-                                                        payEntListLayout.removeView(payEntList);
+                                                        Toast.makeText(getContext(), "Status Updated Successfully", Toast.LENGTH_SHORT).show();
+                                                        status.setText(editText.getText().toString());
                                                     }
                                                 });
-                                            });
+                                            }else{
+                                                Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
 
-                                            // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
-                                            builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
-                                                // If user click no then dialog box is canceled.
-                                                dialog.cancel();
-                                            });
+                                            }
+                                            // send data from the AlertDialog to the Activity
 
-                                            // Create the Alert dialog
-                                            AlertDialog alertDialog = builder.create();
-                                            // Show the Alert Dialog box
-                                            alertDialog.show();
-                                            return false;
-                                        }
+                                        });
+                                        // create and show the alert dialog
+                                        AlertDialog dialog = builder.create();
+                                        dialog.show();
                                     });
+
+                                    total.setOnClickListener(click->{
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                        builder.setTitle("Total Employees");
+
+                                        // set the custom layout
+                                        final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
+                                        builder.setView(customLayout);
+                                        EditText editText = customLayout.findViewById(R.id.editText);
+                                        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                        editText.setText(enterprise.getNo_of_total_emp()+"");
+
+                                        builder.setNegativeButton("Cancel", (dialog, which)->{
+                                            dialog.cancel();
+                                        });
+
+
+                                        // add a button
+                                        builder.setPositiveButton("OK", (dialog, which) -> {
+                                            if(editText.getText().toString().trim().length() != 0){
+                                                enterprise.setNo_of_total_emp(Integer.parseInt(editText.getText().toString()));
+                                                firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(getContext(), "Total Employees Updated Successfully", Toast.LENGTH_SHORT).show();
+                                                        total.setText(editText.getText().toString());
+                                                    }
+                                                });
+                                            }else{
+                                                Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
+
+                                            }
+                                            // send data from the AlertDialog to the Activity
+
+                                        });
+                                        // create and show the alert dialog
+                                        AlertDialog dialog = builder.create();
+                                        dialog.show();
+                                    });
+
+                                    registered.setOnClickListener(click->{
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                        builder.setTitle("Registered Employees");
+
+                                        // set the custom layout
+                                        final View customLayout = getLayoutInflater().inflate(R.layout.edit_statis_layout, null);
+                                        builder.setView(customLayout);
+                                        EditText editText = customLayout.findViewById(R.id.editText);
+                                        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                        editText.setText(enterprise.getNo_of_reg_emp()+"");
+
+                                        builder.setNegativeButton("Cancel", (dialog, which)->{
+                                            dialog.cancel();
+                                        });
+
+
+                                        // add a button
+                                        builder.setPositiveButton("OK", (dialog, which) -> {
+                                            if(editText.getText().toString().trim().length() != 0){
+                                                enterprise.setNo_of_reg_emp(Integer.parseInt(editText.getText().toString()));
+                                                firestore.collection("enterprises").document(q.getId()).set(enterprise).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(getContext(), "Registered Employees Updated Successfully", Toast.LENGTH_SHORT).show();
+                                                        registered.setText(editText.getText().toString());
+                                                    }
+                                                });
+                                            }else{
+                                                Toast.makeText(getContext(), "Status can not be empty", Toast.LENGTH_SHORT).show();
+
+                                            }
+                                            // send data from the AlertDialog to the Activity
+
+                                        });
+                                        // create and show the alert dialog
+                                        AlertDialog dialog = builder.create();
+                                        dialog.show();
+                                    });
+                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                        name.setOnLongClickListener(new View.OnLongClickListener() {
+                                            @Override
+                                            public boolean onLongClick(View v) {
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                                                builder.setMessage("Delete?");
+
+                                                builder.setCancelable(true);
+
+                                                builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+                                                    enterprise.setFrequency(enterprise.getFrequency()+1);
+                                                    firestore.collection("enterprises").document(q.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Toast.makeText(getContext(), "Delete Successfully", Toast.LENGTH_SHORT).show();
+                                                            payEntListLayout.removeView(payEntList);
+                                                        }
+                                                    });
+                                                });
+
+                                                // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
+                                                builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+                                                    // If user click no then dialog box is canceled.
+                                                    dialog.cancel();
+                                                });
+
+                                                // Create the Alert dialog
+                                                AlertDialog alertDialog = builder.create();
+                                                // Show the Alert Dialog box
+                                                alertDialog.show();
+                                                return false;
+                                            }
+                                        });
+
+                                    }
+
+                                }
+                                else{
+                                    status.setTooltipText(enterprise.getStatus());
+                                    status.setOnClickListener(click->{
+                                        status.performLongClick();
+                                    });
+
 
                                 }
 
-                            }
-                            else{
-                                status.setTooltipText(enterprise.getStatus());
-                                status.setOnClickListener(click->{
-                                    status.performLongClick();
-                                });
-
+                                payEntListLayout.addView(payEntList);
+                            }catch (Exception e){
 
                             }
-
-                            payEntListLayout.addView(payEntList);
-                        }catch (Exception e){
 
                         }
-
+                    }
+                    else{
+                        payEntListLayout.setVisibility(View.GONE);
                     }
                 }
-                else{
-                    payEntListLayout.setVisibility(View.GONE);
-                }
-            }
-        });
+            });
+
+        }catch (Exception e){
+
+        }
 
 
     }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Enterprise App</string>
+    <string name="app_name">Wallet Staff</string>
 
     <string name="web_client_id">116435738449-er3dlv4vh7l33qla4s0tk9glf9kjtbne.apps.googleusercontent.com</string>
     <string name="title_activity_home">HomeActivity</string>

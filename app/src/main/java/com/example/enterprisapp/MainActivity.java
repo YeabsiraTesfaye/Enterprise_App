@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.example.enterprisapp.MainApplication.HomeActivity;
 import com.example.enterprisapp.Model.User;
 import com.example.enterprisapp.car.admin.AdminActivity;
+import com.example.enterprisapp.car.driver.DriverActivity;
 import com.example.enterprisapp.car.requestSender.RequestActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -28,9 +29,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -101,8 +100,21 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         // Check condition
         if (firebaseUser != null) {
-            Intent intent = new Intent(MainActivity.this, AdminActivity.class);
-            startActivity(intent);
+            if(sharedPreferences.getInt("role",0) == 1 || sharedPreferences.getInt("role",0) == 2){
+                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                startActivity(intent);
+            } else if (sharedPreferences.getInt("role",0) == 3) {
+                Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+                startActivity(intent);
+            }
+            else if (sharedPreferences.getInt("role",0) == 4) {
+                Intent intent = new Intent(MainActivity.this, DriverActivity.class);
+                startActivity(intent);
+            }else{
+                Intent intent = new Intent(MainActivity.this, RequestActivity.class);
+                startActivity(intent);
+            }
+
         }
     }
 
@@ -144,11 +156,24 @@ public class MainActivity extends AppCompatActivity {
                                                     myEdit.putInt("role",user.getRole());
                                                     myEdit.commit();
 
-                                                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                                                    startActivity(intent);
+                                                    if(user.getRole() == 1 || user.getRole() == 2){
+                                                        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                                                        startActivity(intent);
+                                                    } else if (user.getRole() == 3) {
+                                                        Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+                                                        startActivity(intent);
+                                                    } else if (user.getRole() == 4) {
+                                                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                                        startActivity(intent);
+                                                    }else{
+                                                        Intent intent = new Intent(MainActivity.this, RequestActivity.class);
+                                                        startActivity(intent);
+                                                    }
                                                 }
                                             }else{
-                                                Toast.makeText(MainActivity.this, "You don't have permission to use this platform", Toast.LENGTH_SHORT).show();
+//                                                Toast.makeText(MainActivity.this, "You don't have permission to use this platform", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(MainActivity.this, RequestActivity.class);
+                                                startActivity(intent);
                                             }
                                         }
                                     });

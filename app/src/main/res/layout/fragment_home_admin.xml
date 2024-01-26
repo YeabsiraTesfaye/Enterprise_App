@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".car.admin.ui.adminHome.homeFragmentAdmin">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:text="Requests"
+        android:textStyle="bold"
+        android:gravity="center|bottom"
+        android:background="#FED925"
+        android:textSize="25sp"
+        android:padding="5dp"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/idRVRequests"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-</FrameLayout>
+</LinearLayout>

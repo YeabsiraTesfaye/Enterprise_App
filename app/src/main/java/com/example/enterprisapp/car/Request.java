@@ -9,12 +9,12 @@ public class Request {
     Timestamp forWhen, requestTime;
     int status;
     String remark;
-    String driver;
+    String driver ,from, to;
 
     public Request() {
     }
 
-    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark) {
+    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark, String from, String to) {
         this.nameOfEmployee = nameOfEmployee;
         this.driver = driver;
         this.reason = reason;
@@ -22,6 +22,25 @@ public class Request {
         this.status = status;
         this.remark = remark;
         this.requestTime = requestTime;
+        this.from = from;
+        this.to = to;
+
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 
     public String getNameOfEmployee() {
@@ -37,7 +56,7 @@ public class Request {
     }
 
     public void setReason(String reason) {
-        reason = reason;
+        this.reason = reason;
     }
 
     public Timestamp getForWhen() {
