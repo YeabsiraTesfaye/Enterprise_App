@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".ui.notifications.NotificationsFragment">
+    tools:context=".enterprise.Model.ui.notifications.NotificationsFragment">
     <TextView
         android:id="@+id/view"
         android:layout_width="match_parent"
@@ -45,65 +45,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:textSize="20dp">
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#FED925">
 
-                    <TextView
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="1"
-                        android:padding="10dp"
-                        android:layout_weight="1"
-                        android:text="Enterprise Name" />
-                    <TextView
-
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="1"
-                        android:layout_weight="1"
-                        android:padding="10dp"
-                        android:text="Expected Emps" />
-
-                    <TextView
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="2"
-                        android:padding="10dp"
-                        android:layout_weight="1"
-                        android:text="Last Interaction" />
-
-                    <TextView
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="2"
-                        android:padding="10dp"
-                        android:layout_weight="1"
-                        android:text="meet?" />
-
-                    <TextView
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="2"
-                        android:layout_weight="1"
-                        android:padding="10dp"
-                        android:text="Status" />
-
-                    <TextView
-                        android:textStyle="bold"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_column="2"
-                        android:padding="10dp"
-                        android:layout_weight="1"
-                        android:text="Assigned Person" />
-                </TableRow>
             </TableLayout>
         </ScrollView>
     </HorizontalScrollView>

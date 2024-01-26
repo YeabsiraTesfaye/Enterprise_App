@@ -18,11 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.example.enterprisapp.MainApplication.HomeActivity;
-import com.example.enterprisapp.Model.User;
 import com.example.enterprisapp.car.admin.AdminActivity;
 import com.example.enterprisapp.car.driver.DriverActivity;
 import com.example.enterprisapp.car.requestSender.RequestActivity;
+import com.example.enterprisapp.enterprise.Model.MainApplication.HomeActivity;
+import com.example.enterprisapp.enterprise.Model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

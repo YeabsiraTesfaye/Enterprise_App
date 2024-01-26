@@ -1,8 +1,14 @@
 package com.example.enterprisapp.car.driver;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,17 +17,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.R;
-import com.example.enterprisapp.car.Request;
+import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.car.adapter.RequestRVAdapter;
 import com.example.enterprisapp.databinding.ActivityDriverBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,6 +47,7 @@ import java.util.List;
 
 public class DriverActivity extends AppCompatActivity {
 
+    private static final int REQUEST_LOCATION = 1;
     private FirebaseFirestore firestore;
     private RecyclerView recyclerView;
     GoogleSignInClient googleSignInClient;
@@ -47,18 +58,39 @@ public class DriverActivity extends AppCompatActivity {
     private RequestRVAdapter requestRVAdapter;
     CardView no_req;
     private ActivityDriverBinding binding;
+    private FusedLocationProviderClient client;
+
+    private LocationManager locationManager;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_driver);
         binding = ActivityDriverBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarLayout2.findViewById(R.id.toolbar));
 
+        sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
+        if(sharedPreferences.getInt("status",0) == 1){
+            startActivity(new Intent(DriverActivity.this, MapsActivity.class));
+        }
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//        LocationManager nManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            OnGPS();
+        }
+        if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+
+            ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
+                    2 );
+        }
+
+
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
+        client = LocationServices.getFusedLocationProviderClient(this);
 
         firestore = FirebaseFirestore.getInstance();
         recyclerView = findViewById(R.id.idRVRequests);
@@ -74,14 +106,12 @@ public class DriverActivity extends AppCompatActivity {
 
         // setting adapter to our recycler view.
         recyclerView.setAdapter(requestRVAdapter);
-
         getRequests();
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 getRequests();
-
                 handler.postDelayed(this,5000);
             }
         },1000);
@@ -157,8 +187,52 @@ public class DriverActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     public void onBackPressed() {
 
     }
+
+
+    private void OnGPS() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("Yes", new  DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),1);
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                Toast.makeText(DriverActivity.this,"Turn on your location!!",Toast.LENGTH_SHORT).show();
+                OnGPS();
+            }
+        });
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                OnGPS();
+            }else if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED ){
+//                getAllUsers();
+            }
+        }
+        if(requestCode == 2){
+            if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+
+                ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
+                        2 );
+            }else if(locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER))){
+//                getAllUsers();
+            }
+        }
+    }
+
 }

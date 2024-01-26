@@ -1,4 +1,4 @@
-package com.example.enterprisapp.car;
+package com.example.enterprisapp.car.Model;
 
 
 import com.google.firebase.Timestamp;
@@ -8,13 +8,14 @@ public class Request {
     String reason;
     Timestamp forWhen, requestTime;
     int status;
+    double distance;
     String remark;
     String driver ,from, to;
 
     public Request() {
     }
 
-    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark, String from, String to) {
+    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark, String from, String to, double distance) {
         this.nameOfEmployee = nameOfEmployee;
         this.driver = driver;
         this.reason = reason;
@@ -24,7 +25,7 @@ public class Request {
         this.requestTime = requestTime;
         this.from = from;
         this.to = to;
-
+        this.distance = distance;
     }
 
     public String getFrom() {
@@ -97,5 +98,13 @@ public class Request {
 
     public void setRequestTime(Timestamp requestTime) {
         this.requestTime = requestTime;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

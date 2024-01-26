@@ -6,7 +6,7 @@
     android:background="@color/white"
     android:paddingTop="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.addUnderCommunicationFragment">
+    tools:context=".enterprise.Model.ui.addUnderCommunicationFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:paddingTop="10dp"
-    tools:context=".ui.AddPayFragment">
+    tools:context=".enterprise.Model.ui.AddPayFragment">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/clothingCard"

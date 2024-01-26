@@ -1,9 +1,6 @@
-package com.example.enterprisapp.ui;
+package com.example.enterprisapp.enterprise.Model.ui;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +8,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.enterprisapp.Model.Enterprise;
+import androidx.fragment.app.Fragment;
+
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.enterprise.Model.Enterprise;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;

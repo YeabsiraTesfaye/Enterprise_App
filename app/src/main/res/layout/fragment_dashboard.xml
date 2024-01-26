@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".ui.dashboard.DashboardFragment">
+    tools:context=".enterprise.Model.ui.dashboard.DashboardFragment">
     <TextView
         android:id="@+id/view"
         android:layout_width="match_parent"
@@ -48,59 +48,7 @@
             android:textColor="@android:color/darker_gray"
             android:textSize="20dp">
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FED925"
-                android:orientation="horizontal">
 
-                <TextView
-
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_column="1"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="Enterprise Name" />
-
-                <TextView
-
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_column="1"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="Reg Emps" />
-                <TextView
-
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_column="1"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="Expected Emps" />
-
-                <TextView
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_column="2"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="Due Date" />
-
-                <TextView
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_column="3"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="RM" />
-            </TableRow>
         </TableLayout>
     </LinearLayout>
 

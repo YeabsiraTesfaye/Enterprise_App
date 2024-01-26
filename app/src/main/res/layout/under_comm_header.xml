@@ -1,62 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FED925">
+
     <TextView
-        android:background="#F8F8F8"
-        android:layout_marginBottom="1dp"
-        android:layout_width="50dp"
-        android:layout_height="match_parent"
-        android:layout_column="1"
-        android:layout_weight="1"
-        android:id="@+id/name"
-        android:padding="10dp"/>
-    <TextView
-        android:background="#F8F8F8"
-        android:layout_marginTop="1dp"
         android:textStyle="bold"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="match_parent"
         android:layout_column="1"
         android:padding="10dp"
-        android:id="@+id/total" />
-    <TextView
-        android:textStyle="bold"
-        android:background="#F8F8F8"
-        android:layout_marginTop="1dp"
-        android:layout_width="0dp"
         android:layout_weight="1"
+        android:text="Enterprise Name" />
+    <TextView
+
+        android:textStyle="bold"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_column="1"
+        android:layout_weight="1"
         android:padding="10dp"
-        android:id="@+id/registered" />
+        android:text="Expected Emps" />
+
     <TextView
-        android:background="#F8F8F8"
-        android:layout_marginBottom="1dp"
+        android:textStyle="bold"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_column="2"
-        android:id="@+id/pay_ent_status"
-        android:scrollbars = "horizontal"
+        android:padding="10dp"
         android:layout_weight="1"
-        android:padding="10dp"/>
+        android:text="Last Interaction" />
+
     <TextView
-        android:background="#F8F8F8"
-        android:layout_marginBottom="1dp"
+        android:textStyle="bold"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_column="2"
-        android:id="@+id/pay_ent_freq"
+        android:padding="10dp"
         android:layout_weight="1"
-        android:padding="10dp"/>
+        android:text="meet?" />
+
     <TextView
-        android:background="#F8F8F8"
-        android:layout_marginBottom="1dp"
-        android:layout_width="30dp"
+        android:textStyle="bold"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_column="2"
-        android:id="@+id/pay_ent_RM"
         android:layout_weight="1"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:text="Status" />
+
+    <TextView
+        android:textStyle="bold"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_column="2"
+        android:padding="10dp"
+        android:layout_weight="1"
+        android:text="Assigned Person" />
 </TableRow>

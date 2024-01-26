@@ -16,9 +16,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.enterprisapp.MainApplication.HomeActivity;
 import com.example.enterprisapp.R;
-import com.example.enterprisapp.car.Request;
+import com.example.enterprisapp.car.Model.Request;
+import com.example.enterprisapp.enterprise.Model.MainApplication.HomeActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -84,7 +84,7 @@ public class RequestActivity extends AppCompatActivity {
         String from = fromTI.getEditText().getText().toString();
         String to = toTI.getEditText().getText().toString();
         if(reason.trim().length() > 0 && from.trim().length() > 0 && to.trim().length() > 0 && time != null){
-            Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to);
+            Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to,0);
             firestore.collection("requests").add(request).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {

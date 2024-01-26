@@ -18,7 +18,7 @@
         android:text="Name"
         android:textStyle="bold"
         android:id="@+id/emp_name"
-        android:textSize="12sp"/>
+        android:textSize="15sp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,13 +37,13 @@
                 android:orientation="horizontal">
                 <TextView
                     android:textStyle="bold"
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:paddingRight="5dp"
-                    android:layout_width="90sp"
+                    android:layout_width="110sp"
                     android:layout_height="wrap_content"
                     android:text="From"/>
                 <TextView
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:id="@+id/from"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,13 +59,13 @@
                 android:orientation="horizontal">
                 <TextView
                     android:textStyle="bold"
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:paddingRight="5dp"
-                    android:layout_width="90sp"
+                    android:layout_width="110sp"
                     android:layout_height="wrap_content"
                     android:text="To"/>
                 <TextView
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:id="@+id/to"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,15 +80,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:paddingRight="5dp"
-                    android:layout_width="90sp"
+                    android:layout_width="110sp"
                     android:layout_height="wrap_content"
-                    android:text="Requested on"/>
+                    android:paddingRight="5dp"
+                    android:text="Requested on"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:id="@+id/req_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -104,13 +106,13 @@
                 android:orientation="horizontal">
                 <TextView
                     android:textStyle="bold"
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:paddingRight="5dp"
-                    android:layout_width="90sp"
+                    android:layout_width="110sp"
                     android:layout_height="wrap_content"
                     android:text="Requested For"/>
                 <TextView
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:id="@+id/time_needed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -127,22 +129,33 @@
                     android:textStyle="bold"
                     android:layout_marginVertical="5dp"
                     android:text="Reason"
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:textColor="@color/black"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
                 <TextView
-                    android:textSize="12sp"
+                    android:textSize="15sp"
                     android:layout_weight="1"
                     android:textColor="@color/black"
                     android:id="@+id/reason1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
                 <TextView
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/distance"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:layout_marginTop="10dp"/>
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/status"
                     android:text="STATUS"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     android:layout_marginTop="10dp"/>
                 <TextView
                     android:visibility="gone"
@@ -151,7 +164,16 @@
                     android:id="@+id/remark"
                     android:text=""
                     android:layout_marginTop="10dp"/>
+
             </LinearLayout>
+            <Button
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="START"
+                android:textColor="#000000"
+                android:id="@+id/start"
+                android:background="@drawable/bg"/>
         </LinearLayout>
 
 

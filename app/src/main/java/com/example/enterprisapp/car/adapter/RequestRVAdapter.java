@@ -5,11 +5,13 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,7 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.enterprisapp.R;
-import com.example.enterprisapp.car.Request;
+import com.example.enterprisapp.car.Model.Request;
+import com.example.enterprisapp.car.driver.MapsActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -31,7 +34,7 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 	// creating variables for our ArrayList and context
 	private ArrayList<Request> RequestArrayList;
 	SharedPreferences sharedPreferences;
-	String[] status_text = {"PENDING","ACCEPTED","DECLINED"};
+	String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
 
 	private Context context;
 
@@ -78,7 +81,17 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 
 		holder.status.setText(status_text[request.getStatus()-1]);
 		holder.remark.setText(request.getRemark());
+		holder.distance.setText("Distance\n"+(request.getDistance()/1000)+" KM");
+		holder.start.setOnClickListener(click->{
+			Intent intent =new Intent(context, MapsActivity.class);
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+			editor.putInt("status", 1);
+			editor.putString("name",request.getNameOfEmployee());
+			editor.commit();
+			context.startActivity(intent);
+		});
 		if(sharedPreferences.getInt("role",0) == 3){
+			holder.start.setVisibility(View.GONE);
 			holder.itemView.setOnClickListener(click->{
 				FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -178,10 +191,12 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 			if(request.getStatus() == 1){
 				holder.status.setTextColor(Color.parseColor("#a3a300"));
 				holder.remark.setVisibility(View.GONE);
+				holder.distance.setVisibility(View.GONE);
 
 			}else if(request.getStatus() == 2){
 				holder.status.setTextColor(Color.parseColor("#0fb000"));
 				holder.remark.setVisibility(View.GONE);
+				holder.distance.setVisibility(View.GONE);
 
 				holder.itemView.setOnClickListener(click->{
 
@@ -190,10 +205,19 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 				holder.status.setTextColor(Color.parseColor("#8a0000"));
 				holder.remark.setTextColor(Color.parseColor("#8a0000"));
 				holder.remark.setVisibility(View.VISIBLE);
+				holder.distance.setVisibility(View.GONE);
+				holder.itemView.setOnClickListener(click->{
+
+				});
+			}else if(request.getStatus() == 4){
+				holder.status.setTextColor(Color.parseColor("#a3a300"));
+				holder.remark.setVisibility(View.GONE);
+				holder.distance.setVisibility(View.VISIBLE);
 				holder.itemView.setOnClickListener(click->{
 
 				});
 			}
+
 		}else {
 			holder.reason.setVisibility(View.GONE);
 //			holder.status.setVisibility(View.GONE);
@@ -202,8 +226,7 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 //			holder.rf.setVisibility(View.GONE);
 			holder.ro.setVisibility(View.GONE);
 			holder.r.setVisibility(View.GONE);
-
-
+			holder.start.setVisibility(View.VISIBLE);
 		}
 
 
@@ -223,8 +246,9 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 		private final TextView time_needed;
 		private final TextView requested_time;
 		private final TextView status;
-		private final TextView remark,r, from, to;
+		private final TextView remark,r, from, to, distance;
 		private final LinearLayout rf,ro;
+		private final Button start;
 
 		public ViewHolder(@NonNull View itemView) {
 			super(itemView);
@@ -240,6 +264,8 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 			r = itemView.findViewById(R.id.r);
 			from = itemView.findViewById(R.id.from);
 			to = itemView.findViewById(R.id.to);
+			start = itemView.findViewById(R.id.start);
+			distance = itemView.findViewById(R.id.distance);
 		}
 	}
 }

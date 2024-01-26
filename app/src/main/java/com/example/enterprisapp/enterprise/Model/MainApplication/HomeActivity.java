@@ -1,4 +1,4 @@
-package com.example.enterprisapp.MainApplication;
+package com.example.enterprisapp.enterprise.Model.MainApplication;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,16 +22,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.enterprisapp.MainActivity;
-import com.example.enterprisapp.Model.Enterprise;
 import com.example.enterprisapp.R;
 import com.example.enterprisapp.car.requestSender.RequestActivity;
 import com.example.enterprisapp.databinding.ActivityHome2Binding;
-import com.example.enterprisapp.ui.AddPayFragment;
-import com.example.enterprisapp.ui.AddToPayFragment;
-import com.example.enterprisapp.ui.addUnderCommunicationFragment;
-import com.example.enterprisapp.ui.dashboard.DashboardFragment;
-import com.example.enterprisapp.ui.home.HomeFragment;
-import com.example.enterprisapp.ui.notifications.NotificationsFragment;
+import com.example.enterprisapp.enterprise.Model.Enterprise;
+import com.example.enterprisapp.enterprise.Model.ui.AddPayFragment;
+import com.example.enterprisapp.enterprise.Model.ui.AddToPayFragment;
+import com.example.enterprisapp.enterprise.Model.ui.addUnderCommunicationFragment;
+import com.example.enterprisapp.enterprise.Model.ui.dashboard.DashboardFragment;
+import com.example.enterprisapp.enterprise.Model.ui.home.HomeFragment;
+import com.example.enterprisapp.enterprise.Model.ui.notifications.NotificationsFragment;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;

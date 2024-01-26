@@ -15,9 +15,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.example.enterprisapp.MainApplication.HomeActivity;
 import com.example.enterprisapp.R;
-import com.example.enterprisapp.car.Request;
+import com.example.enterprisapp.car.Model.Request;
+import com.example.enterprisapp.enterprise.Model.MainApplication.HomeActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
