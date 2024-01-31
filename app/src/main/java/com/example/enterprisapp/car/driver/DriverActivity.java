@@ -1,5 +1,7 @@
 package com.example.enterprisapp.car.driver;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.Service;
 import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.car.adapter.RequestRVAdapter;
 import com.example.enterprisapp.databinding.ActivityDriverBinding;
@@ -40,6 +43,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -53,7 +57,6 @@ public class DriverActivity extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
-
     private ArrayList<Request> requestsArrayList;
     private RequestRVAdapter requestRVAdapter;
     CardView no_req;
@@ -70,8 +73,14 @@ public class DriverActivity extends AppCompatActivity {
         binding = ActivityDriverBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarLayout2.findViewById(R.id.toolbar));
+        if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, 1);
+        }
+        startService(new Intent(DriverActivity.this, Service.class));
+
 
         sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
+        client = LocationServices.getFusedLocationProviderClient(this);
         if(sharedPreferences.getInt("status",0) == 1){
             startActivity(new Intent(DriverActivity.this, MapsActivity.class));
         }
@@ -106,7 +115,7 @@ public class DriverActivity extends AppCompatActivity {
 
         // setting adapter to our recycler view.
         recyclerView.setAdapter(requestRVAdapter);
-        getRequests();
+//        getRequests();
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -118,7 +127,7 @@ public class DriverActivity extends AppCompatActivity {
     }
     void getRequests(){
         try{
-            firestore.collection("requests").whereEqualTo("status",2).get()
+            firestore.collection("requests").orderBy("requestTime", Query.Direction.DESCENDING).whereEqualTo("status",2).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class homeFragmentAdmin extends Fragment {
     private RequestRVAdapter requestRVAdapter;
     private FragmentHomeAdminBinding binding;
     FirebaseFirestore firestore;
+    int previousSize = 0;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -51,13 +53,39 @@ public class homeFragmentAdmin extends Fragment {
         // setting adapter to our recycler view.
         recyclerView.setAdapter(requestRVAdapter);
 
-        getRequests();
+        try {
+            firestore.collection("requests").orderBy("requestTime", Query.Direction.DESCENDING).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            previousSize = queryDocumentSnapshots.size();
+                            requestsArrayList.removeAll(requestsArrayList);
+                            recyclerView.removeAllViews();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot d : list) {
+                                    Request request = d.toObject(Request.class);
+                                    requestsArrayList.add(request);
+                                }
+                                requestRVAdapter.notifyDataSetChanged();
+                            } else {
+//                                    Toast.makeText(getContext(), "You don't have requests yet.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "Fail to get the data.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }catch (Exception e){
+
+        }
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 getRequests();
-
                 handler.postDelayed(this,5000);
             }
         },1000);
@@ -75,22 +103,26 @@ public class homeFragmentAdmin extends Fragment {
 
     void getRequests(){
         try {
-            firestore.collection("requests").get()
+            firestore.collection("requests").orderBy("requestTime", Query.Direction.DESCENDING).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            requestsArrayList.removeAll(requestsArrayList);
-                            recyclerView.removeAllViews();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                                for (DocumentSnapshot d : list) {
-                                    Request request = d.toObject(Request.class);
-                                    requestsArrayList.add(request);
-                                }
-                                requestRVAdapter.notifyDataSetChanged();
-                            } else {
+                            if(queryDocumentSnapshots.size() > previousSize){
+                                previousSize = queryDocumentSnapshots.size();
+                                requestsArrayList.removeAll(requestsArrayList);
+                                recyclerView.removeAllViews();
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                                    for (DocumentSnapshot d : list) {
+                                        Request request = d.toObject(Request.class);
+                                        requestsArrayList.add(request);
+                                    }
+                                    requestRVAdapter.notifyDataSetChanged();
+                                } else {
 //                                    Toast.makeText(getContext(), "You don't have requests yet.", Toast.LENGTH_SHORT).show();
+                                }
                             }
+
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override

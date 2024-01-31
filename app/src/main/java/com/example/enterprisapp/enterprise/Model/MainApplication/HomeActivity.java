@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.car.admin.AdminActivity;
 import com.example.enterprisapp.car.requestSender.RequestActivity;
 import com.example.enterprisapp.databinding.ActivityHome2Binding;
 import com.example.enterprisapp.enterprise.Model.Enterprise;
@@ -46,6 +48,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HomeActivity extends AppCompatActivity
         implements BottomNavigationView
@@ -91,15 +96,38 @@ FirebaseUser firebaseUser;
         pay_ent_tv= findViewById(R.id.totalPaid);
         to_pay_ent_tv = findViewById(R.id.totalExpected);
         under_comm_tv = findViewById(R.id.totalUnderComm);
+        sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
 
         requestCar = findViewById(R.id.request);
         requestCar.setOnClickListener(click->{
-            startActivity(new Intent(HomeActivity.this, RequestActivity.class));
+            if(sharedPreferences.getInt("role",0) == 2){
+                PopupMenu popup = new PopupMenu(this, click);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.role_1, popup.getMenu());
+                popup.show();
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if(item.getItemId() == R.id.requestCar){
+                            startActivity(new Intent(HomeActivity.this, RequestActivity.class));
+                            return true;
+
+                        }else if(item.getItemId() == R.id.approveRequest){
+                            startActivity(new Intent(HomeActivity.this, AdminActivity.class));
+                            return true;
+
+                        }
+                        return false;
+                    }
+                });
+            }
+            else{
+                startActivity(new Intent(HomeActivity.this, RequestActivity.class));
+            }
         });
 
 
 
-        sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -200,54 +228,63 @@ FirebaseUser firebaseUser;
             mAddFab.setVisibility(View.VISIBLE);
 
         }
-        Handler handler=new Handler();
-        handler.postDelayed(new Runnable() {
+
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
             @Override
             public void run() {
-                try{
-                    firestore.collection("enterprises").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            for(QueryDocumentSnapshot q: queryDocumentSnapshots){
-                                Enterprise enterprise = q.toObject(Enterprise.class);
-                                if(enterprise.getStatus_type() == 1){
-                                    pay_ent+=1;
-                                } else if (enterprise.getStatus_type() == 2) {
-                                    to_pay_ent+=1;
-                                }
-                                else if (enterprise.getStatus_type() == 3) {
-                                    und_comm_ent+=1;
-                                }
-                                try{
-                                    if(enterprise.getStatus_type() != 3){
-                                        exp_emp += enterprise.getNo_of_total_emp();
-                                        reg_emp += enterprise.getNo_of_reg_emp();
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            try{
+                                firestore.collection("enterprises").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        for(QueryDocumentSnapshot q: queryDocumentSnapshots){
+                                            Enterprise enterprise = q.toObject(Enterprise.class);
+                                            if(enterprise.getStatus_type() == 1){
+                                                pay_ent+=1;
+                                                exp_emp += enterprise.getNo_of_total_emp();
+                                                reg_emp += enterprise.getNo_of_reg_emp();
+                                            } else if (enterprise.getStatus_type() == 2) {
+                                                to_pay_ent+=1;
+                                                exp_emp += enterprise.getNo_of_total_emp();
+                                                reg_emp += enterprise.getNo_of_reg_emp();
+                                            }
+                                            else if (enterprise.getStatus_type() == 3) {
+                                                und_comm_ent+=1;
+                                            }
+
+
+                                        }
+                                        total_emp_tv.setText(exp_emp+"");
+                                        reg_emp_tv.setText(reg_emp+"");
+                                        pay_ent_tv.setText(pay_ent+"");
+                                        to_pay_ent_tv.setText(to_pay_ent+"");
+                                        under_comm_tv.setText(und_comm_ent+"");
+                                        exp_emp =0;
+                                        reg_emp=0;
+                                        pay_ent=0;
+                                        to_pay_ent=0;
+                                        und_comm_ent = 0;
                                     }
 
-                                }catch (Exception e){
+                                });
+                            }catch (Exception e){
 
-                                }
                             }
-                            total_emp_tv.setText(exp_emp+"");
-                            reg_emp_tv.setText(reg_emp+"");
-                            pay_ent_tv.setText(pay_ent+"");
-                            to_pay_ent_tv.setText(to_pay_ent+"");
-                            under_comm_tv.setText(und_comm_ent+"");
-                            exp_emp =0;
-                            reg_emp=0;
-                            pay_ent=0;
-                            to_pay_ent=0;
-                            und_comm_ent = 0;
+                            //your method here
+                        } catch (Exception e) {
                         }
-
-                    });
-                }catch (Exception e){
-
-                }
-
-                handler.postDelayed(this,1000);
+                    }
+                });
             }
-        },1000);
+        };
+        timer.schedule(doAsynchronousTask, 0, 5000);
+
+
+
 
 
         onBackPressedCallback = new OnBackPressedCallback(true) {

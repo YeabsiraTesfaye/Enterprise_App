@@ -3,10 +3,10 @@ package com.example.enterprisapp.car.Model;
 
 import com.google.firebase.Timestamp;
 
-public class Request {
+public class Request{
     String nameOfEmployee;
     String reason;
-    Timestamp forWhen, requestTime;
+    Timestamp forWhen, requestTime, started, ended;
     int status;
     double distance;
     String remark;
@@ -15,7 +15,7 @@ public class Request {
     public Request() {
     }
 
-    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark, String from, String to, double distance) {
+    public Request(String nameOfEmployee, String driver, String reason, Timestamp forWhen, Timestamp requestTime, int status, String remark, String from, String to, double distance, Timestamp started, Timestamp ended) {
         this.nameOfEmployee = nameOfEmployee;
         this.driver = driver;
         this.reason = reason;
@@ -106,5 +106,21 @@ public class Request {
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public Timestamp getStarted() {
+        return started;
+    }
+
+    public void setStarted(Timestamp started) {
+        this.started = started;
+    }
+
+    public Timestamp getEnded() {
+        return ended;
+    }
+
+    public void setEnded(Timestamp ended) {
+        this.ended = ended;
     }
 }

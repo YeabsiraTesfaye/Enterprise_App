@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -35,14 +35,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONObject;
@@ -70,20 +71,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double distance = 0;
     FirebaseFirestore firestore;
     Location start;
-    Location oldLocation;
+    LatLng oldLocation;
     Button done;
+    int nano = 0;
     private FusedLocationProviderClient client;
     SharedPreferences sharedPreferences;
+    ArrayList<LatLng> MarkerPoints;
+    LatLng startLocation;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        request = (Request) getIntent().getSerializableExtra("Request");
         sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            editor.putInt("status", 1);
+            editor.putString("id", extras.get("id").toString());
+            editor.putString("lat", extras.get("lat").toString());
+            editor.putString("lng", extras.get("lng").toString());
+            editor.commit();
+        }
+
+        progressBar = findViewById(R.id.progress_bar);
+        startLocation = new LatLng(Double.parseDouble(sharedPreferences.getString("lat","")), Double.parseDouble(sharedPreferences.getString("lng","")));
+
         if(sharedPreferences.getInt("status",0) == 2){
             startActivity(new Intent(MapsActivity.this, DriverActivity.class));
         }
+
+//        startLocation = new LatLng(Double.parseDouble(sharedPreferences.getString("lat","")), Double.parseDouble(sharedPreferences.getString("lng","")));
+        oldLocation = startLocation;
+
+        MarkerPoints = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
             setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
         }
@@ -106,23 +131,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         done.setOnClickListener(click->{
-            String name = sharedPreferences.getString("name","");
-            firestore.collection("requests").whereEqualTo("nameOfEmployee", name).orderBy("requestTime").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            progressBar.setVisibility(View.VISIBLE);
+            firestore.collection("requests").document(sharedPreferences.getString("id","")).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
-                    DocumentSnapshot document = documents.get(documents.size() - 1);
-                    Request request = document.toObject(Request.class);
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Request request = documentSnapshot.toObject(Request.class);
                     request.setStatus(4);
-                    request.setDistance(distance);
-                    firestore.collection("requests").document(document.getId()).set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    request.setEnded(Timestamp.now());
+                    String d = sharedPreferences.getString("distance","");
+                    request.setDistance(distance/1000);
+                    firestore.collection("requests").document(documentSnapshot.getId()).set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             Toast.makeText(MapsActivity.this, "Trip Done!!!", Toast.LENGTH_SHORT).show();
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("status", 2);
+                            editor.putString("id", "");
+                            editor.putString("lat", "");
+                            editor.putString("lng", "");
+                            editor.putLong("distance", 0);
                             editor.commit();
+                            progressBar.setVisibility(View.GONE);
                             startActivity(new Intent(MapsActivity.this,DriverActivity.class));
+                            finish();
                         }
                     });
                 }
@@ -134,34 +165,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
 
-        if (ActivityCompat.checkSelfPermission(
-                MapsActivity.this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                MapsActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-            List<String> providers = mLocationManager.getProviders(true);
-            Location bestLocation = null;
-            for (String provider : providers) {
-                Location l = mLocationManager.getLastKnownLocation(provider);
-                if (l == null) {
-                    continue;
-                }
-                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                    bestLocation = l;
-                }
-            }
-            client.getLastLocation().addOnSuccessListener(MapsActivity.this, new OnSuccessListener() {
-                @Override
-                public void onSuccess(Object o) {
-                    if (o != null) {
-                        oldLocation = (Location)o;
-                    }
-                }
-            });
-        }
+        //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
@@ -174,149 +179,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-    }
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
-        mGoogleApiClient.connect();
-    }
 
-    @Override
-    public void onConnected(Bundle bundle) {
 
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        }
+
 
     }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        getLocation();
-
-//        stop location updates
-//        if (mGoogleApiClient != null) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
-
-        LatLng oldLatLng = new LatLng(oldLocation.getLatitude(), oldLocation.getLongitude());
-        if(SphericalUtil.computeDistanceBetween(oldLatLng, latLng) > 5){
-            LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
-            getUrl(startLatLng, latLng);
-            distance += SphericalUtil.computeDistanceBetween(oldLatLng, latLng);
-            oldLocation = location;
-        }
-
-//        Toast.makeText(MapsActivity.this,distance+"",Toast.LENGTH_SHORT).show();
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                MapsActivity.this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                MapsActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            try{
-
-            }catch (Exception e){
-
-            }LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-            List<String> providers = mLocationManager.getProviders(true);
-            Location bestLocation = null;
-            for (String provider : providers) {
-                Location l = mLocationManager.getLastKnownLocation(provider);
-                if (l == null) {
-                    continue;
-                }
-                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                    bestLocation = l;
-                }
-            }
-            client.getLastLocation().addOnSuccessListener(MapsActivity.this, new OnSuccessListener() {
-                @Override
-                public void onSuccess(Object o) {
-                    if (o != null) {
-                        start = (Location)o;
-                        LatLng latLng = new LatLng(start.getLatitude(),start.getLongitude());
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(latLng);
-                        markerOptions.title("Start Location");
-//                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                        mCurrLocationMarker = mMap.addMarker(markerOptions);
-                    }
-                }
-            });
-
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private String getUrl(LatLng origin, LatLng dest) {
 
@@ -489,8 +356,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+
+        //Place current location marker
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(startLocation);
+        markerOptions.title("Start Location");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+        String url = getUrl(startLocation, latLng);
+        Log.d("onMapClick", url.toString());
+        FetchUrl FetchUrl = new FetchUrl();
+
+        // Start downloading json data from Google Directions API
+        FetchUrl.execute(url);
+        //move map camera
+
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+        double L_L = SphericalUtil.computeDistanceBetween(oldLocation,latLng);
+        if(L_L > 5){
+            distance += L_L;
+            oldLocation = latLng;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("distance", distance+"");
+            editor.commit();
+
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public boolean checkLocationPermission(){
@@ -557,8 +494,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // other 'case' lines to check for other permissions this app might request.
             // You can add here other case statements according to your requirement.
         }
-    }
-    public static void setWindowFlag(Activity activity, final int bits, boolean on) {
+    }public static void setWindowFlag(Activity activity, final int bits, boolean on) {
         Window win = activity.getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
         if (on) {
@@ -567,5 +503,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             winParams.flags &= ~bits;
         }
         win.setAttributes(winParams);
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 }

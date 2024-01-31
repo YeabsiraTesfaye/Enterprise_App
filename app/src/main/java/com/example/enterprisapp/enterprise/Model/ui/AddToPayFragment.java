@@ -95,7 +95,7 @@ public class AddToPayFragment extends Fragment {
             ){
                 progressBar.setVisibility(View.VISIBLE);
                 Enterprise enterprise = new Enterprise(name.getEditText().getText().toString(),
-                        firebaseUser.getDisplayName(), date,2,Integer.parseInt(total.getEditText().getText().toString()),Integer.parseInt(registered.getEditText().getText().toString()));
+                        firebaseUser.getDisplayName(), date,2,Integer.parseInt(registered.getEditText().getText().toString()),Integer.parseInt(total.getEditText().getText().toString()));
 
                 firestore.collection("enterprises").add(enterprise).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override

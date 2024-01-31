@@ -1,13 +1,18 @@
 package com.example.enterprisapp.car.adapter;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,32 +23,44 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.enterprisapp.R;
 import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.car.driver.MapsActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.ViewHolder> {
+	private static final int REQUEST_LOCATION = 1;
 	// creating variables for our ArrayList and context
 	private ArrayList<Request> RequestArrayList;
 	SharedPreferences sharedPreferences;
 	String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
 
 	private Context context;
+	Button b;
+	FirebaseFirestore firestore;
+
+	String lat = "";
+	String lng = "";
 
 	// creating constructor for our adapter class
 	public RequestRVAdapter(ArrayList<Request> RequestArrayList, Context context) {
 		this.RequestArrayList = RequestArrayList;
 		this.context = context;
 		sharedPreferences = context.getSharedPreferences("sp",MODE_PRIVATE);
-
+		firestore = FirebaseFirestore.getInstance();
 	}
 
 	@NonNull
@@ -81,16 +98,20 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 
 		holder.status.setText(status_text[request.getStatus()-1]);
 		holder.remark.setText(request.getRemark());
-		holder.distance.setText("Distance\n"+(request.getDistance()/1000)+" KM");
+		String d = request.getDistance()+"";
+		if(d.trim().length() > 5){
+			holder.distance.setText(d.substring(0,5)+" KM");
+
+		}else{
+			holder.distance.setText(d+" KM");
+		}
+
 		holder.start.setOnClickListener(click->{
-			Intent intent =new Intent(context, MapsActivity.class);
-			SharedPreferences.Editor editor = sharedPreferences.edit();
-			editor.putInt("status", 1);
-			editor.putString("name",request.getNameOfEmployee());
-			editor.commit();
-			context.startActivity(intent);
+			holder.start.setEnabled(false);
+
+			getLocation(request);
 		});
-		if(sharedPreferences.getInt("role",0) == 3){
+		if(sharedPreferences.getInt("role",0) == 3 || sharedPreferences.getInt("role",0) == 1){
 			holder.start.setVisibility(View.GONE);
 			holder.itemView.setOnClickListener(click->{
 				FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -218,7 +239,8 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 				});
 			}
 
-		}else {
+		}
+		else {
 			holder.reason.setVisibility(View.GONE);
 //			holder.status.setVisibility(View.GONE);
 //			holder.time_needed.setVisibility(View.GONE);
@@ -266,6 +288,64 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 			to = itemView.findViewById(R.id.to);
 			start = itemView.findViewById(R.id.start);
 			distance = itemView.findViewById(R.id.distance);
+			b = itemView.findViewById(R.id.start);
+		}
+	}
+
+	private void getLocation(Request request) {
+		FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(context);
+		if (ActivityCompat.checkSelfPermission(
+				context,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+				context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+		} else {
+			LocationManager mLocationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+			List<String> providers = mLocationManager.getProviders(true);
+			Location bestLocation = null;
+			for (String provider : providers) {
+				Location l = mLocationManager.getLastKnownLocation(provider);
+				if (l == null) {
+					continue;
+				}
+				if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+					bestLocation = l;
+				}
+			}
+			client.getLastLocation().addOnSuccessListener((Activity) context, new OnSuccessListener() {
+				@Override
+				public void onSuccess(Object o) {
+					if (o != null) {
+						Location here = (Location)o;
+						lat = here.getLatitude()+"";
+						lng = here.getLongitude()+"";
+						Intent intent =new Intent(context, MapsActivity.class);
+						request.setStarted(Timestamp.now());
+
+						firestore.collection("requests").whereEqualTo("requestTime",request.getRequestTime()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+							@Override
+							public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+								for (QueryDocumentSnapshot q: queryDocumentSnapshots){
+									Request r = q.toObject(Request.class);
+									firestore.collection("requests").document(q.getId()).set(request);
+
+									intent.putExtra("lat", lat);
+									intent.putExtra("lng", lng);
+									intent.putExtra("id",q.getId());
+									b.setEnabled(true);
+
+									context.startActivity(intent);
+								}
+
+							}
+						}).addOnFailureListener(new OnFailureListener() {
+							@Override
+							public void onFailure(@NonNull Exception e) {
+
+							}
+						});
+					}
+				}
+			});
 		}
 	}
 }

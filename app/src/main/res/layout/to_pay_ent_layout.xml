@@ -13,16 +13,6 @@
         android:padding="10dp"/>
     <TextView
         android:layout_marginBottom="1dp"
-        android:background="#F8F8F8"
-        android:textStyle="bold"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:layout_column="2"
-        android:padding="10dp"
-        android:id="@+id/total" />
-    <TextView
-        android:layout_marginBottom="1dp"
         android:textStyle="bold"
         android:background="#F8F8F8"
         android:layout_width="0dp"
@@ -31,6 +21,17 @@
         android:layout_column="3"
         android:padding="10dp"
         android:id="@+id/registered" />
+    <TextView
+        android:layout_marginBottom="1dp"
+        android:background="#F8F8F8"
+        android:textStyle="bold"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_column="2"
+        android:padding="10dp"
+        android:id="@+id/total" />
+
     <TextView
         android:background="#F8F8F8"
         android:layout_marginBottom="1dp"

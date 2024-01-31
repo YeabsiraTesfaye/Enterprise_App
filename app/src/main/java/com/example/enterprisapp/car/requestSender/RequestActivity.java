@@ -45,6 +45,7 @@ public class RequestActivity extends AppCompatActivity {
     FloatingActionButton info;
     private SharedPreferences sharedPreferences;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +65,7 @@ public class RequestActivity extends AppCompatActivity {
         requestBtn = findViewById(R.id.request);
 
         progressBar = findViewById(R.id.progress_bar);
+        requestBtn.setEnabled(false);
 
         info = findViewById(R.id.info);
         info.setOnClickListener(click->{
@@ -84,7 +86,7 @@ public class RequestActivity extends AppCompatActivity {
         String from = fromTI.getEditText().getText().toString();
         String to = toTI.getEditText().getText().toString();
         if(reason.trim().length() > 0 && from.trim().length() > 0 && to.trim().length() > 0 && time != null){
-            Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to,0);
+            Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to,0, null, null);
             firestore.collection("requests").add(request).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
@@ -123,6 +125,7 @@ public class RequestActivity extends AppCompatActivity {
                         startActivity(new Intent(RequestActivity.this, StatusViewActivity.class));
                     }else{
                         progressBar.setVisibility(View.GONE);
+                        requestBtn.setEnabled(true);
                         timeTI.getEditText().setOnClickListener(click->{
                             InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
                             inputMethodManager.hideSoftInputFromWindow(timeTI.getApplicationWindowToken(),0);
