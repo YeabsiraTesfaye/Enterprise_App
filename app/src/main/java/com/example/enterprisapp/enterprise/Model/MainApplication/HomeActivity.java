@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.Service;
 import com.example.enterprisapp.car.admin.AdminActivity;
 import com.example.enterprisapp.car.requestSender.RequestActivity;
 import com.example.enterprisapp.databinding.ActivityHome2Binding;
@@ -98,6 +99,10 @@ FirebaseUser firebaseUser;
         under_comm_tv = findViewById(R.id.totalUnderComm);
         sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
 
+        if(sharedPreferences.getInt("role",0) == 2){
+            startForegroundService(new Intent(HomeActivity.this, Service.class));
+
+        }
         requestCar = findViewById(R.id.request);
         requestCar.setOnClickListener(click->{
             if(sharedPreferences.getInt("role",0) == 2){

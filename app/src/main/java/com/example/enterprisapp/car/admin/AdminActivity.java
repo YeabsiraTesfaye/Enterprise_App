@@ -1,6 +1,7 @@
 package com.example.enterprisapp.car.admin;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +17,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.enterprisapp.MainActivity;
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.Service;
 import com.example.enterprisapp.databinding.ActivityAdminBinding;
+import com.example.enterprisapp.enterprise.Model.MainApplication.HomeActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -33,11 +36,14 @@ public class AdminActivity extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startForegroundService(new Intent(AdminActivity.this, Service.class));
 
+        sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
@@ -72,19 +78,16 @@ public class AdminActivity extends AppCompatActivity {
             googleSignInClient = GoogleSignIn.getClient(AdminActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
 
             // Sign out from google
-            googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    // Check condition
-                    if (task.isSuccessful()) {
-                        // bWhen task is successful sign out from firebase
-                        firebaseAuth.signOut();
-                        // Display Toast
-                        Toast.makeText(getApplicationContext(), "Logout successful", Toast.LENGTH_SHORT).show();
-                        // Finish activity
-                        startActivity(new Intent(AdminActivity.this, MainActivity.class));
-                        finish();
-                    }
+            googleSignInClient.signOut().addOnCompleteListener(task -> {
+                // Check condition
+                if (task.isSuccessful()) {
+                    // bWhen task is successful sign out from firebase
+                    firebaseAuth.signOut();
+                    // Display Toast
+                    Toast.makeText(getApplicationContext(), "Logout successful", Toast.LENGTH_SHORT).show();
+                    // Finish activity
+                    startActivity(new Intent(AdminActivity.this, MainActivity.class));
+                    finish();
                 }
             });
             return true;
@@ -99,5 +102,12 @@ public class AdminActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_admin);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(sharedPreferences.getInt("role",0) == 2){
+            startActivity(new Intent(AdminActivity.this, HomeActivity.class));
+        }
     }
 }

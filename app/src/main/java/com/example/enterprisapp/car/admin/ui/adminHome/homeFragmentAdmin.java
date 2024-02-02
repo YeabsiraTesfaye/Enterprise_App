@@ -107,7 +107,7 @@ public class homeFragmentAdmin extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if(queryDocumentSnapshots.size() > previousSize){
+                            if(queryDocumentSnapshots.size() != previousSize){
                                 previousSize = queryDocumentSnapshots.size();
                                 requestsArrayList.removeAll(requestsArrayList);
                                 recyclerView.removeAllViews();

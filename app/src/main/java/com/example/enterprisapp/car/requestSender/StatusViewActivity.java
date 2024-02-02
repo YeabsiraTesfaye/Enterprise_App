@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -62,7 +63,7 @@ public class StatusViewActivity extends AppCompatActivity {
     }
     void getStatus(){
         try{
-            firestore.collection("requests").whereEqualTo("nameOfEmployee", firebaseUser.getDisplayName()).orderBy("requestTime").get()
+            firestore.collection("requests").whereEqualTo("nameOfEmployee", firebaseUser.getDisplayName()).orderBy("requestTime", Query.Direction.DESCENDING).get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

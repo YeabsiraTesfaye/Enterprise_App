@@ -76,6 +76,8 @@ public class DriverActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, 1);
         }
+//        stopService(new Intent(DriverActivity.this,ForeGroundService.class));
+
         startService(new Intent(DriverActivity.this, Service.class));
 
 

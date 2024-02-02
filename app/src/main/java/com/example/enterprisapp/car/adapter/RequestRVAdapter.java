@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.enterprisapp.R;
+import com.example.enterprisapp.Service;
 import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.car.driver.MapsActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -44,11 +45,11 @@ import java.util.List;
 public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.ViewHolder> {
 	private static final int REQUEST_LOCATION = 1;
 	// creating variables for our ArrayList and context
-	private ArrayList<Request> RequestArrayList;
+	private final ArrayList<Request> RequestArrayList;
 	SharedPreferences sharedPreferences;
 	String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
 
-	private Context context;
+	private final Context context;
 	Button b;
 	FirebaseFirestore firestore;
 
@@ -73,6 +74,7 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 	@Override
 	public void onBindViewHolder(@NonNull RequestRVAdapter.ViewHolder holder, int position) {
 		// setting data to our text views from our modal class.
+		holder.start.setEnabled(true);
 		Request request = RequestArrayList.get(position);
 		holder.employee_name.setText(request.getNameOfEmployee());
 		holder.reason.setText(request.getReason());
@@ -111,7 +113,7 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 
 			getLocation(request);
 		});
-		if(sharedPreferences.getInt("role",0) == 3 || sharedPreferences.getInt("role",0) == 1){
+		if(sharedPreferences.getInt("role",0) == 3 || sharedPreferences.getInt("role",0) == 2){
 			holder.start.setVisibility(View.GONE);
 			holder.itemView.setOnClickListener(click->{
 				FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -331,8 +333,10 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 									intent.putExtra("lat", lat);
 									intent.putExtra("lng", lng);
 									intent.putExtra("id",q.getId());
-									b.setEnabled(true);
-
+									SharedPreferences.Editor editor = sharedPreferences.edit();
+									editor.putString("distance","0");
+									editor.commit();
+									context.stopService(new Intent(context, Service.class));
 									context.startActivity(intent);
 								}
 
