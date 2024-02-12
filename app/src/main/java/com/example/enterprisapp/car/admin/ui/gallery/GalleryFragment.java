@@ -24,6 +24,7 @@ import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.databinding.FragmentGalleryBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -39,7 +40,7 @@ public class GalleryFragment extends Fragment {
     ArrayList<Integer> fromDate = new ArrayList<>();
     ArrayList<Integer> toDate = new ArrayList<>();
 
-    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
+    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE", "TRIP STARTED", "CANCELED BY ADMIN", "CANCELED BY USER"};
     String[] months = {"January","February","March","April","May","June","July","August","September","October","November","December"};
     Button download;
     View header;
@@ -160,51 +161,81 @@ public class GalleryFragment extends Fragment {
         });
         download.setOnClickListener(click->{
             ExportExcel exportExcel = new ExportExcel();
-            exportExcel.RequestCustomers(getContext(),requests,"Report");
+            exportExcel.RequestCustomers(getContext(),requests,
+                    months[fromDate.get(1)]+" "+fromDate.get(0)+" "+fromDate.get(2)+" to "+ months[toDate.get(1)]+" "+toDate.get(0)+" "+toDate.get(2));
         });
+        Calendar cal = Calendar.getInstance();
+        int res = cal.getActualMaximum(Calendar.DATE);
+        fromDate.removeAll(fromDate);
+        fromDate.add(0,1);
+        fromDate.add(1,Timestamp.now().toDate().getMonth());
+        fromDate.add(2,Timestamp.now().toDate().getYear()+1900);
 
-        firestore.collection("requests").whereNotEqualTo("status",1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                tableLayout.removeAllViews();
-                tableLayout.addView(header);
+        toDate.removeAll(toDate);
+        toDate.add(0,res);
+        toDate.add(1,Timestamp.now().toDate().getMonth());
+        toDate.add(2,Timestamp.now().toDate().getYear()+1900);
+        fromDP.getEditText().setText(months[Timestamp.now().toDate().getMonth()]+" "+1+" "+(Timestamp.now().toDate().getYear()+1900));
+        toDP.getEditText().setText(months[Timestamp.now().toDate().getMonth()]+" "+res+" "+(Timestamp.now().toDate().getYear()+1900));
+        filter();
 
-                for (QueryDocumentSnapshot q : queryDocumentSnapshots){
-                    Request request = q.toObject(Request.class);
-                    View rows = LayoutInflater.from(getContext()).inflate(R.layout.admin_report_layout,null,false);
-                    TextView name = rows.findViewById(R.id.name);
-                    TextView from = rows.findViewById(R.id.from);
-                    TextView to = rows.findViewById(R.id.to);
-                    TextView start = rows.findViewById(R.id.start);
-                    TextView end = rows.findViewById(R.id.end);
-                    TextView req = rows.findViewById(R.id.requested_on);
-                    TextView forr = rows.findViewById(R.id.requested_for);
-                    TextView reason = rows.findViewById(R.id.reason);
-                    TextView distance = rows.findViewById(R.id.distance);
-                    TextView status = rows.findViewById(R.id.status);
-
-                    name.setText(request.getNameOfEmployee());
-                    from.setText(request.getFrom());
-                    to.setText(request.getTo());
-//                    start.setText(request.getStarted().toDate().toString());
-//                    end.setText(request.getEnded().toDate().toString());
-                    req.setText(request.getRequestTime().toDate().toString());
-                    forr.setText(request.getForWhen().toDate().toString());
-                    reason.setText(request.getReason());
-
-                    String d = request.getDistance()+"";
-                    if(d.trim().length() > 5){
-                        distance.setText(d.substring(0,5)+" KM");
-
-                    }else{
-                        distance.setText(d+" KM");
-                    }
-                    status.setText(status_text[request.getStatus()-1]);
-
-                    tableLayout.addView(rows);
-                }
-            }
-        });
+//        firestore.collection("requests").whereNotEqualTo("status",1).limit(25).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//            @Override
+//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                tableLayout.removeAllViews();
+//                tableLayout.addView(header);
+//
+//                for (QueryDocumentSnapshot q : queryDocumentSnapshots){
+//                    Request request = q.toObject(Request.class);
+//                    View rows = LayoutInflater.from(getContext()).inflate(R.layout.admin_report_layout,null,false);
+//                    TextView name = rows.findViewById(R.id.name);
+//                    TextView from = rows.findViewById(R.id.from);
+//                    TextView to = rows.findViewById(R.id.to);
+//                    TextView start = rows.findViewById(R.id.start);
+//                    TextView end = rows.findViewById(R.id.end);
+//                    TextView req = rows.findViewById(R.id.requested_on);
+//                    TextView forr = rows.findViewById(R.id.requested_for);
+//                    TextView reason = rows.findViewById(R.id.reason);
+//                    TextView distance = rows.findViewById(R.id.distance);
+//                    TextView status = rows.findViewById(R.id.status);
+//
+//                    if(
+//                            request.getForWhen().toDate().getDate() >= 1&&
+//                                    request.getForWhen().toDate().getDate() <= 31&&
+//                                    request.getForWhen().toDate().getMonth() == Timestamp.now().toDate().getMonth()&&
+//                                    request.getForWhen().toDate().getMonth() == Timestamp.now().toDate().getMonth()&&
+//                                    request.getForWhen().toDate().getYear() == Timestamp.now().toDate().getYear()&&
+//                                    request.getForWhen().toDate().getYear() == Timestamp.now().toDate().getYear()){
+//
+//
+//
+//
+//
+//
+//                        name.setText(request.getNameOfEmployee());
+//                        from.setText(request.getFrom());
+//                        to.setText(request.getTo());
+////                    start.setText(request.getStarted().toDate().toString());
+////                    end.setText(request.getEnded().toDate().toString());
+//                        req.setText(request.getRequestTime().toDate().toString());
+//                        forr.setText(request.getForWhen().toDate().toString());
+//                        reason.setText(request.getReason());
+//
+//                        String d = request.getDistance()+"";
+//                        if(d.trim().length() > 5){
+//                            distance.setText(d.substring(0,5)+" KM");
+//                        }else{
+//                            distance.setText(d+" KM");
+//                        }
+//                        status.setText(status_text[request.getStatus()-1]);
+//
+//                        tableLayout.addView(rows);
+//                    }
+//
+//
+//                }
+//            }
+//        });
 
 
 
@@ -223,8 +254,7 @@ public class GalleryFragment extends Fragment {
                     for (QueryDocumentSnapshot q : queryDocumentSnapshots){
                         Request request = q.toObject(Request.class);
 
-
-                        if(
+                            if(
                                 request.getForWhen().toDate().getDate() >= fromDate.get(0)&&
                                         request.getForWhen().toDate().getDate() <= toDate.get(0)&&
                                         request.getForWhen().toDate().getMonth()>= fromDate.get(1)&&

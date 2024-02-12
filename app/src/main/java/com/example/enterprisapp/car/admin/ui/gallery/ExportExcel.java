@@ -22,29 +22,20 @@ import java.util.List;
 
 public class ExportExcel {
 
-    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
+    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE", "TRIP STARTED", "CANCELED BY ADMIN", "CANCELED BY USER"};
+
 
 
     private static Cell cell, cell2, cell3;
 
     public void RequestCustomers(Context context, List<Request> requestsList, String fileName){
         Workbook workbook = new HSSFWorkbook();
-        Sheet sheetCustomer = workbook.createSheet("Customers"); //Creating a sheet
-        Sheet sheetMerchant = workbook.createSheet("Merchants"); //Creating a sheet
-        Sheet sheetEnterprise = workbook.createSheet("Enterprises"); //Creating a sheet
+        Sheet sheetCustomer = workbook.createSheet("Car Request Report"); //Creating a sheet
 
         Row topicRow = sheetCustomer.createRow(0);
-        Row topicRow2 = sheetMerchant.createRow(0);
-        Row topicRow3 = sheetEnterprise.createRow(0);
 
         cell = topicRow.createCell(0);
-        cell.setCellValue("WALLET MICROFINANCE SC \nRequest OF TOTAL REGISTERED WALLET CUSTOMERS\n"+fileName);
-
-        cell2 = topicRow2.createCell(0);
-        cell2.setCellValue("WALLET MICROFINANCE SC \nRequest OF TOTAL REGISTERED WALLET MERCHANTS\n"+fileName);
-
-        cell3 = topicRow3.createCell(0);
-        cell3.setCellValue("WALLET MICROFINANCE SC \nRequest OF TOTAL REGISTERED WALLET ENTERPRISES\n"+fileName);
+        cell.setCellValue("WALLET MICROFINANCE SC \nCAR REQUEST LIST FOR\n"+fileName);
 
 
         sheetCustomer.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));

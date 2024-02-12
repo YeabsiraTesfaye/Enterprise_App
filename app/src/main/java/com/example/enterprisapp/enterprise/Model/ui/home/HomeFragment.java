@@ -226,7 +226,7 @@ public class HomeFragment extends Fragment {
                                         AlertDialog dialog = builder.create();
                                         dialog.show();
                                     });
-                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")|| firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                         name.setOnLongClickListener(new View.OnLongClickListener() {
                                             @Override
                                             public boolean onLongClick(View v) {
@@ -474,7 +474,7 @@ public class HomeFragment extends Fragment {
                                             AlertDialog dialog = builder.create();
                                             dialog.show();
                                         });
-                                        if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                        if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")|| firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                             name.setOnLongClickListener(new View.OnLongClickListener() {
                                                 @Override
                                                 public boolean onLongClick(View v) {

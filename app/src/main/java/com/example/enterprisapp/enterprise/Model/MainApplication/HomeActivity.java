@@ -348,6 +348,8 @@ FirebaseUser firebaseUser;
                 public void onComplete(@NonNull Task<Void> task) {
                     // Check condition
                     if (task.isSuccessful()) {
+                        sharedPreferences.edit().clear().commit();
+
                         // bWhen task is successful sign out from firebase
                         firebaseAuth.signOut();
                         // Display Toast

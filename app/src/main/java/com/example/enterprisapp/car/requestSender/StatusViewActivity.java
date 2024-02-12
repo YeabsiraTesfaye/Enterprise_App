@@ -35,7 +35,8 @@ public class StatusViewActivity extends AppCompatActivity {
     CardView no_req;
     LinearLayout card;
     int status = 0;
-    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
+    String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE", "TRIP STARTED", "CANCELED BY ADMIN", "CANCELED BY USER"};
+
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -51,7 +52,7 @@ public class StatusViewActivity extends AppCompatActivity {
         firebaseUser = firebaseAuth.getCurrentUser();
         firestore = FirebaseFirestore.getInstance();
 
-        getStatus();
+//        getStatus();
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -107,11 +108,11 @@ public class StatusViewActivity extends AppCompatActivity {
                                 // Set the positive button with yes name Lambda OnClickListener method is use of DialogInterface interface.
                                 builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
                                     // When the user click yes button then app will close
-
-                                    firestore.collection("requests").document(q.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    request.setStatus(7);
+                                    firestore.collection("requests").document(q.getId()).set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Toast.makeText(StatusViewActivity.this, "Date Updated Successfully", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(StatusViewActivity.this, "Trip Canceled Successfully", Toast.LENGTH_SHORT).show();
 
                                         }
                                     });

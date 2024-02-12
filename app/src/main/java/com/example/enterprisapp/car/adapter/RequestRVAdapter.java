@@ -32,6 +32,7 @@ import com.example.enterprisapp.car.Model.Request;
 import com.example.enterprisapp.car.driver.MapsActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
@@ -47,7 +48,7 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 	// creating variables for our ArrayList and context
 	private final ArrayList<Request> RequestArrayList;
 	SharedPreferences sharedPreferences;
-	String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE"};
+	String[] status_text = {"PENDING","ACCEPTED","DECLINED","DONE", "TRIP STARTED", "CANCELED BY ADMIN", "CANCELED BY USER"};
 
 	private final Context context;
 	Button b;
@@ -142,7 +143,11 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 										@Override
 										public void onSuccess(Void unused) {
 											Toast.makeText(context, "Date Updated Successfully", Toast.LENGTH_SHORT).show();
-											holder.itemView.setVisibility(View.GONE);
+											holder.status.setText("ACCEPTED");
+											holder.status.setTextColor(Color.parseColor("#0fb000"));
+											holder.itemView.setOnClickListener(click->{
+
+											});
 
 										}
 									});
@@ -181,6 +186,11 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 											firestore.collection("requests").document(q.getId()).set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
 												@Override
 												public void onSuccess(Void unused) {
+													holder.status.setText("DECLINED");
+													holder.status.setTextColor(Color.parseColor("#8a0000"));
+													holder.itemView.setOnClickListener(click->{
+
+													});
 													Toast.makeText(context, "Request Declined", Toast.LENGTH_SHORT).show();
 												}
 											});
@@ -233,12 +243,31 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 
 				});
 			}else if(request.getStatus() == 4){
-				holder.status.setTextColor(Color.parseColor("#a3a300"));
+				holder.status.setTextColor(Color.parseColor("#000000"));
 				holder.remark.setVisibility(View.GONE);
 				holder.distance.setVisibility(View.VISIBLE);
 				holder.itemView.setOnClickListener(click->{
 
 				});
+			}else if(request.getStatus() == 5){
+				holder.status.setTextColor(Color.parseColor("#8a0000"));
+				holder.remark.setVisibility(View.GONE);
+				holder.distance.setVisibility(View.GONE);
+
+				holder.itemView.setOnClickListener(click->{
+
+
+				});
+
+			}else if(request.getStatus() == 6){
+				holder.status.setTextColor(Color.parseColor("#8a0000"));
+				holder.remark.setVisibility(View.GONE);
+				holder.distance.setVisibility(View.GONE);
+
+				holder.itemView.setOnClickListener(click->{
+
+				});
+
 			}
 
 		}
@@ -295,61 +324,56 @@ public class RequestRVAdapter extends RecyclerView.Adapter<RequestRVAdapter.View
 	}
 
 	private void getLocation(Request request) {
-		FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(context);
-		if (ActivityCompat.checkSelfPermission(
-				context,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-				context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-		} else {
-			LocationManager mLocationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-			List<String> providers = mLocationManager.getProviders(true);
-			Location bestLocation = null;
-			for (String provider : providers) {
-				Location l = mLocationManager.getLastKnownLocation(provider);
-				if (l == null) {
-					continue;
-				}
-				if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-					bestLocation = l;
-				}
-			}
-			client.getLastLocation().addOnSuccessListener((Activity) context, new OnSuccessListener() {
-				@Override
-				public void onSuccess(Object o) {
-					if (o != null) {
-						Location here = (Location)o;
-						lat = here.getLatitude()+"";
-						lng = here.getLongitude()+"";
-						Intent intent =new Intent(context, MapsActivity.class);
-						request.setStarted(Timestamp.now());
+		if(Timestamp.now().compareTo(request.getForWhen()) < 0){
+			Toast.makeText(context,"You cant start trip before the time it is requested for",Toast.LENGTH_SHORT).show();
+		}else{
+			FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(context);
+			if (ActivityCompat.checkSelfPermission(
+					context,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+					context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+			} else {
+				client.getLastLocation().addOnSuccessListener((Activity) context, new OnSuccessListener() {
+					@Override
+					public void onSuccess(Object o) {
+						if (o != null) {
+							Location here = (Location)o;
+							lat = here.getLatitude()+"";
+							lng = here.getLongitude()+"";
+							Intent intent =new Intent(context, MapsActivity.class);
+							request.setStarted(Timestamp.now());
 
-						firestore.collection("requests").whereEqualTo("requestTime",request.getRequestTime()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-							@Override
-							public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-								for (QueryDocumentSnapshot q: queryDocumentSnapshots){
-									Request r = q.toObject(Request.class);
-									firestore.collection("requests").document(q.getId()).set(request);
+							request.setStatus(5);
 
-									intent.putExtra("lat", lat);
-									intent.putExtra("lng", lng);
-									intent.putExtra("id",q.getId());
-									SharedPreferences.Editor editor = sharedPreferences.edit();
-									editor.putString("distance","0");
-									editor.commit();
-									context.stopService(new Intent(context, Service.class));
-									context.startActivity(intent);
+							firestore.collection("requests").whereEqualTo("requestTime",request.getRequestTime()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+								@Override
+								public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+									for (QueryDocumentSnapshot q: queryDocumentSnapshots){
+										Request r = q.toObject(Request.class);
+										firestore.collection("requests").document(q.getId()).set(request);
+
+										SharedPreferences.Editor editor = sharedPreferences.edit();
+										editor.putString("distance","0");
+										editor.putString("lat", lat);
+										editor.putString("lng", lng);
+										editor.putString("id",q.getId());
+										editor.commit();
+										context.stopService(new Intent(context, Service.class));
+										context.startActivity(intent);
+									}
+
 								}
+							}).addOnFailureListener(new OnFailureListener() {
+								@Override
+								public void onFailure(@NonNull Exception e) {
 
-							}
-						}).addOnFailureListener(new OnFailureListener() {
-							@Override
-							public void onFailure(@NonNull Exception e) {
-
-							}
-						});
+								}
+							});
+						}
 					}
-				}
-			});
+				});
+			}
 		}
+
 	}
 }

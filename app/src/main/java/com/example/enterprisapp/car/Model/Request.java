@@ -26,6 +26,8 @@ public class Request{
         this.from = from;
         this.to = to;
         this.distance = distance;
+        this.started = started;
+        this.ended = ended;
     }
 
     public String getFrom() {

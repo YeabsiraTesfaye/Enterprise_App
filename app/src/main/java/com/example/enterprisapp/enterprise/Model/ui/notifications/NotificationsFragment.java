@@ -240,7 +240,7 @@ public class NotificationsFragment extends Fragment {
                                         dialog.show();
                                     });
 
-                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")|| firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                         name.setOnLongClickListener(new View.OnLongClickListener() {
                                             @Override
                                             public boolean onLongClick(View v) {
@@ -491,7 +491,7 @@ public class NotificationsFragment extends Fragment {
                                         dialog.show();
                                     });
 
-                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")|| firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                         name.setOnLongClickListener(new View.OnLongClickListener() {
                                             @Override
                                             public boolean onLongClick(View v) {

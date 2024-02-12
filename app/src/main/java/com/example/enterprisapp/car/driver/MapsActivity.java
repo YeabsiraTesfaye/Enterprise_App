@@ -59,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LatLng> MarkerPoints;
     LatLng startLocation;
     ProgressBar progressBar;
+    LatLng finalLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +72,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sharedPreferences = getSharedPreferences("sp",MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        Bundle extras = getIntent().getExtras();
-        if(extras != null){
-            editor.putInt("status", 1);
-            editor.putString("id", extras.get("id").toString());
-            editor.putString("lat", extras.get("lat").toString());
-            editor.putString("lng", extras.get("lng").toString());
-            editor.commit();
-        }
+        editor.putInt("status", 1);
+        editor.commit();
 
         progressBar = findViewById(R.id.progress_bar);
         startLocation = new LatLng(Double.parseDouble(sharedPreferences.getString("lat","")), Double.parseDouble(sharedPreferences.getString("lng","")));
@@ -116,8 +111,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     Request request = documentSnapshot.toObject(Request.class);
                     request.setStatus(4);
+
                     request.setEnded(Timestamp.now());
-                    double finalDistance = Double.parseDouble(sharedPreferences.getString("distance",""));
+                    double finalDistance = Double.parseDouble(sharedPreferences.getString("distance","0"));
+                    finalDistance = finalDistance + (finalDistance * 0.25);
+
                     request.setDistance(finalDistance/1000);
                     firestore.collection("requests").document(documentSnapshot.getId()).set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -199,13 +197,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        finalLocation = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(startLocation);
         markerOptions.title("Start Location");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
         mCurrLocationMarker = mMap.addMarker(markerOptions);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(finalLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
     }
 

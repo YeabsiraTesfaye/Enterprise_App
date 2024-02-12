@@ -2,6 +2,7 @@ package com.example.enterprisapp.car.driver;
 
 import static android.Manifest.permission.POST_NOTIFICATIONS;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -97,6 +98,12 @@ public class DriverActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
                     2 );
         }
+        if (ActivityCompat.checkSelfPermission(
+                DriverActivity.this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                DriverActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) DriverActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        }
+
 
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -180,6 +187,8 @@ public class DriverActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     // Check condition
                     if (task.isSuccessful()) {
+                        sharedPreferences.edit().clear().commit();
+
                         // bWhen task is successful sign out from firebase
                         firebaseAuth.signOut();
                         // Display Toast

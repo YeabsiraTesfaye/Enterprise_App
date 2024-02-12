@@ -80,6 +80,7 @@ public class DashboardFragment extends Fragment {
                                     name.setText(enterprise.getName());
                                     total.setText(enterprise.getNo_of_total_emp()+"");
                                     registered.setText(enterprise.getNo_of_reg_emp()+"");
+                                    System.out.println(enterprise.getDate() +"MyDate");
 
                                     String[] arr_date = enterprise.getDate().toDate().toString().split(" ");
                                     String str_date = arr_date[0]+" "+arr_date[1]+" "+arr_date[2]+" "+arr_date[5];
@@ -193,7 +194,7 @@ public class DashboardFragment extends Fragment {
                                             AlertDialog dialog = builder.create();
                                             dialog.show();
                                         });
-                                        if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                        if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com") || firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                             name.setOnLongClickListener(new View.OnLongClickListener() {
                                                 @Override
                                                 public boolean onLongClick(View v) {
@@ -397,7 +398,7 @@ public class DashboardFragment extends Fragment {
                                         AlertDialog dialog = builder.create();
                                         dialog.show();
                                     });
-                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")){
+                                    if(firebaseUser.getEmail().trim().equals("amzpaulos@gmail.com")|| firebaseUser.getEmail().trim().equals("hannahmequanint@gmail.com")){
                                         name.setOnLongClickListener(new View.OnLongClickListener() {
                                             @Override
                                             public boolean onLongClick(View v) {

@@ -79,35 +79,36 @@ public class RequestActivity extends AppCompatActivity {
                     handler.postDelayed(this,1000);
                 }
             },1000);
-
     }
     void requestCar(){
         String reason = reasonTI.getEditText().getText().toString();
         String from = fromTI.getEditText().getText().toString();
         String to = toTI.getEditText().getText().toString();
         if(reason.trim().length() > 0 && from.trim().length() > 0 && to.trim().length() > 0 && time != null){
-            Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to,0, null, null);
-            firestore.collection("requests").add(request).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    reasonTI.getEditText().setText("");
-                    timeTI.getEditText().setText("");
-                    fromTI.getEditText().setText("");
-                    toTI.getEditText().setText("");
+            if(time.compareTo(Timestamp.now()) < 0){
+                Toast.makeText(RequestActivity.this, "Time for request can not be before now", Toast.LENGTH_SHORT).show();
+            }else{
+                Request request = new Request(firebaseUser.getDisplayName(),"",reason,time,Timestamp.now(),1,"",from,to,0, null, null);
+                firestore.collection("requests").add(request).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        reasonTI.getEditText().setText("");
+                        timeTI.getEditText().setText("");
+                        fromTI.getEditText().setText("");
+                        toTI.getEditText().setText("");
 
-                    time = null;
-                    progressBar.setVisibility(View.GONE);
-                    requestBtn.setEnabled(true);
+                        time = null;
+                        progressBar.setVisibility(View.GONE);
+                        requestBtn.setEnabled(true);
 
-                    Toast.makeText(RequestActivity.this,"Request Sent Successfully", Toast.LENGTH_SHORT).show();
-                }
-            });
+                        Toast.makeText(RequestActivity.this,"Request Sent Successfully", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }else{
             Toast.makeText(RequestActivity.this,"Fill out all fields!!!", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             requestBtn.setEnabled(true);
-
-
         }
     }
 
@@ -116,12 +117,10 @@ public class RequestActivity extends AppCompatActivity {
             firestore.collection("requests").whereEqualTo("nameOfEmployee", firebaseUser.getDisplayName()).whereEqualTo("status", 1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
                     if(queryDocumentSnapshots.size() != 0){
                         finish();
                         startActivity(new Intent(RequestActivity.this, StatusViewActivity.class));
                         handler.removeCallbacksAndMessages(null);
-
                         startActivity(new Intent(RequestActivity.this, StatusViewActivity.class));
                     }else{
                         progressBar.setVisibility(View.GONE);
